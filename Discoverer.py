@@ -2,6 +2,7 @@
 to load all the available discovery modules.
 """
 
+from time      import sleep
 from threading import Thread
 
 class Discoverer(Thread):
@@ -28,14 +29,24 @@ class Discoverer(Thread):
 
     def __init__(self, output):
         """Construct a new Discoverer
-        output: a queue where the output will be pushed."""
+        output: a queue where the output will be pushed.
+        loopTime: the amount of time to sleep for between loops."""
         Thread.__init__(self)
-        self.output = output
+        self.output   = output
+        self.loopTime = loopTime
 
     def run(self):
+        """Runs this detector forever in a loop.
+        Override this method if your discoverer already loops
+        forever.
+        """
+        while True:
+            self.runOnce()
+            sleep(self.loopTime)
+
+    def runOnce(self):
         """The main loop of the discoverer.
-        Do your thing in here, loop forever and pass things
-        to the output queue.
+        Override this method and do your thing in here.
         """
         pass
 
