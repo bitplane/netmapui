@@ -31,7 +31,7 @@ class Discoverer_Arp(Discoverer):
             out = {'device':
                       {'ipv4.address': tokens[0],
                        'eth.address' : tokens[3],
-                       'if.name'     : tokens[4]}}
+                       'if.name'     : tokens[5]}}
             self.output.put(out)
 
         input.close()
