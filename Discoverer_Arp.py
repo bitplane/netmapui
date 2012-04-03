@@ -28,10 +28,12 @@ class Discoverer_Arp(Discoverer):
             if tokens[1] != 1 or not tokens[2] & 2:
                 continue
 
-            out = {'device':
-                      {'ipv4.address': tokens[0],
-                       'eth.address' : tokens[3],
-                       'if.name'     : tokens[5]}}
+            out = {'devices':
+                      [{'ipv4': {'address'  : tokens[0]},
+                        'eth' : {'address'  : tokens[3],
+                                 'interface': tokens[5]}}],
+                   'interfaces': [{'name':tokens[5]}] }
+
             self.output.put(out)
 
         input.close()

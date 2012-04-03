@@ -100,7 +100,7 @@ def startDiscovery(output, intrusive=False):
         try:
             instance = klass(output)
             instances.append(instance)
-            discoverer.start()
+            instance.start()
         except Exception as e:
             # Don't crash because someone didn't read the docs
             logging.error(e)
