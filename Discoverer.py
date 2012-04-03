@@ -43,6 +43,7 @@ class Discoverer(Thread):
         Thread.__init__(self)
         self.output   = output
         self.loopTime = loopTime
+        self.daemon   = True
 
     def run(self):
         """Runs this detector forever in a loop.
@@ -65,15 +66,15 @@ def getAllDiscoverers():
     script's directory. This function creates each one and returns
     a list of their classes, which can be used to construct objects.
     """
-    ret = []
+    classes = []
     basepath = os.path.dirname(os.path.realpath(__file__))
 
     for name in glob('{base}/Discoverer_*.py'.format(base=basepath)):
         modname = os.path.splitext(os.path.split(name)[1])[0]
         module  = __import__('{mod}'.format(mod=modname))
-        ret.append(getattr(module, modname))
+        classes.append(getattr(module, modname))
 
-    return ret
+    return classes
 
 def startDiscovery(output, intrusive=False):
     """Starts the discovery process.
@@ -85,9 +86,11 @@ def startDiscovery(output, intrusive=False):
     intrusive: If set to True, returns discoverers that poke around
         the network in ways that might upset your network admin.
     """
-    discs = filter(lambda d: intrusive or not d.isIntrusive,
-                   getAllDiscoverers())
+    classes    = filter(lambda d: intrusive or not d.isIntrusive,
+                        getAllDiscoverers())
+    instances  = [klass(output) for klass in classes]
 
-    for disc in discs:
-        instance = disc(output)
-        instance.start()
+    for discoverer in instances:
+        discoverer.start()
+
+    return instances
