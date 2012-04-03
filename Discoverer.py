@@ -6,6 +6,7 @@ It also provides functions which can load and start all the available
 discoverers.
 """
 
+import logging
 import os
 
 from glob      import glob
@@ -71,8 +72,13 @@ def getAllDiscoverers():
 
     for name in glob('{base}/Discoverer_*.py'.format(base=basepath)):
         modname = os.path.splitext(os.path.split(name)[1])[0]
-        module  = __import__('{mod}'.format(mod=modname))
-        classes.append(getattr(module, modname))
+        try:
+            module  = __import__('{mod}'.format(mod=modname))
+            classes.append(getattr(module, modname))
+        except Exception as e:
+            # Don't crash on someone else's behalf.
+            logging.error(e)
+            continue
 
     return classes
 
@@ -88,9 +94,16 @@ def startDiscovery(output, intrusive=False):
     """
     classes    = filter(lambda d: intrusive or not d.isIntrusive,
                         getAllDiscoverers())
-    instances  = [klass(output) for klass in classes]
+    instances  = []
 
-    for discoverer in instances:
-        discoverer.start()
+    for klass in classes:
+        try:
+            instance = klass(output)
+            instances.append(instance)
+            discoverer.start()
+        except Exception as e:
+            # Don't crash because someone didn't read the docs
+            logging.error(e)
+            continue
 
     return instances
