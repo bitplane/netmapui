@@ -1,7 +1,13 @@
 """Discovers machines using ARP.
 """
 
+import os
+
 from Discoverer import Discoverer
+
+# dependency check
+if not os.path.exists('/proc/net/arp'):
+    raise ImportError('Discoverer_Arp requires /proc/net/arp access')
 
 class Discoverer_Arp(Discoverer):
     """ARP Discoverer.
@@ -12,8 +18,14 @@ class Discoverer_Arp(Discoverer):
     isIntrusive = False
     isPassive   = True
 
+    def validate(self):
+        """Raise an exception if dependencies aren't met.
+        This discoverer requires /proc/net/arp.
+        """
+
     def runOnce(self):
-        """Adds machines from the ARP cache to the caller's queue."""
+        """Adds machines from the ARP cache to the caller's queue.
+        """
         input = open('/proc/net/arp')
         # ignore the first line (header)
         input.next()
