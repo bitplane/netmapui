@@ -27,7 +27,7 @@ class Discoverer(Thread):
     isIntrusive = False
     isPassive   = False
 
-    def __init__(self, output):
+    def __init__(self, output, loopTime=60):
         """Construct a new Discoverer
         output: a queue where the output will be pushed.
         loopTime: the amount of time to sleep for between loops."""
