@@ -75,4 +75,19 @@ def getAllDiscoverers():
 
     return ret
 
-    
+def startDiscovery(output, intrusive=False):
+    """Starts the discovery process.
+    Creates every available discoverer and points them at the output
+    queue. Returns a list of objects, which are running threads.
+
+    output: The queue where discovery events will be sent.
+
+    intrusive: If set to True, returns discoverers that poke around
+        the network in ways that might upset your network admin.
+    """
+    discs = filter(lambda d: intrusive or not d.isIntrusive,
+                   getAllDiscoverers())
+
+    for disc in discs:
+        instance = disc(output)
+        instance.start()
