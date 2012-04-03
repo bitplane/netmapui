@@ -1,12 +1,21 @@
-"""This module defines the root discovery class, and provides a way
-to load all the available discovery modules.
+"""The root network discovery class.
+This module provides the "Discoverer" base class, a background task
+which discovers machines and the services they're running, pushing
+the output to a queue.
+It also provides functions which can load and start all the available 
+discoverers.
 """
 
+import os
+
+from glob      import glob
 from time      import sleep
 from threading import Thread
 
 class Discoverer(Thread):
-    """The discovery class itself.
+    """The base network discovery class.
+    Instances of these run forever in the background, finding new nodes,
+    networks and services, passing them to an output queue.
 
     Attributes:
 
@@ -37,7 +46,7 @@ class Discoverer(Thread):
 
     def run(self):
         """Runs this detector forever in a loop.
-        Override this method if your discoverer already loops
+        You can override this method if your discoverer already loops
         forever.
         """
         while True:
@@ -45,8 +54,25 @@ class Discoverer(Thread):
             sleep(self.loopTime)
 
     def runOnce(self):
-        """The main loop of the discoverer.
-        Override this method and do your thing in here.
+        """Runs one loop of your discoverer.
+        Override this method and do self.output.put(dict)
         """
         pass
 
+def getAllDiscoverers():
+    """Gets all available discoverer classes.
+    Each Discoverer exists as a file named Dicoverer_*.py in this 
+    script's directory. This function creates each one and returns
+    a list of their classes, which can be used to construct objects.
+    """
+    ret = []
+    basepath = os.path.dirname(os.path.realpath(__file__))
+
+    for name in glob('{base}/Discoverer_*.py'.format(base=basepath)):
+        modname = os.path.splitext(os.path.split(name)[1])[0]
+        module  = __import__('{mod}'.format(mod=modname))
+        ret.append(getattr(module, modname))
+
+    return ret
+
+    
