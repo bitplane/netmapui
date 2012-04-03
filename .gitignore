@@ -1,0 +1,6 @@
+# ignore temporary files
+*~
+# ignore coverage files
+*.cover
+# ignore python bytecode
+*.pyc
